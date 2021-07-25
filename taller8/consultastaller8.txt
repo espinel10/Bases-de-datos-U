@@ -1,0 +1,126 @@
+
+---------------------------------------------taller 2--------------------------------------------------------------------
+-----------------------1.-------------------------------------------------------
+SELECT p.nombre,p.apellido,p.documento,p.documento,c.nombre,s.nombre,p.fechanacimiento,p.fecharegistro,ci.nombre,de.nombre
+FROM pedido.persona p,academico.tipodocumento c,academico.sexo s,academico.ciudad ci,academico.pais pa,academico.departamento de 
+WHERE p.idsexo=s.id and p.idtipodocumento=c.id and p.idciudad=ci.id and ci.iddepartamento=de.id and de.idpais=pa.id
+ORDER BY de.id ASC;
+		 
+----------------------------------------------------------------------------------------------------------------------------
+---------------------------2.--------------------------------------------------
+SELECT de.nombre,COUNT(*)
+FROM pedido.persona p,academico.tipodocumento c,academico.sexo s,academico.ciudad ci,academico.pais pa,academico.departamento de 
+WHERE (p.idsexo=s.id and p.idtipodocumento=c.id and p.idciudad=ci.id and ci.iddepartamento=de.id and de.idpais=pa.id
+	 and (s.nombre like 'M%')	
+	  )
+GROUP BY de.id
+ORDER BY COUNT(*) DESC
+
+		 
+----------------------------------------------------------------------------------------------------------------------------
+-------------------------3.--------------------------------------------------------------
+SELECT de.nombre,COUNT(*)
+FROM pedido.persona p,academico.tipodocumento c,academico.sexo s,academico.ciudad ci,academico.pais pa,academico.departamento de 
+WHERE (p.idsexo=s.id and p.idtipodocumento=c.id and p.idciudad=ci.id and ci.iddepartamento=de.id and de.idpais=pa.id
+	 and (s.nombre like 'F%')	
+	  )
+GROUP BY de.id
+ORDER BY COUNT(*) DESC
+
+		 
+----------------------------------------------------------------------------------------------------------------------------
+------------------4.------------------------------------------------------------------------
+
+SELECT de.nombre as "departamentacho",COUNT(*) as "mujeres",
+(SELECT COUNT(*) as "menores"
+FROM pedido.persona pp,academico.sexo ss,academico.ciudad cii,academico.departamento dee 
+WHERE (pp.idsexo=ss.id and pp.idciudad=cii.id and cii.iddepartamento=dee.id
+	 and (ss.nombre like 'F%')	
+	 and substring(age(now(),pp.fechanacimiento)::text from 1 for 2)::int <19 
+	 and dee.id=de.id 
+	  )
+),
+(SELECT COUNT(*) as "mayores"
+FROM pedido.persona pp,academico.sexo ss,academico.ciudad cii,academico.departamento dee 
+WHERE (pp.idsexo=ss.id and pp.idciudad=cii.id and cii.iddepartamento=dee.id
+	 and (ss.nombre like 'F%')	
+	 and (substring(age(now(),pp.fechanacimiento)::text from 1 for 2)::int >18 and substring(age(now(),pp.fechanacimiento)::text from 1 for 2)::int <50 ) 
+	 and dee.id=de.id 
+	  )
+),
+(SELECT COUNT(*) as "viejas"
+FROM pedido.persona pp,academico.sexo ss,academico.ciudad cii,academico.departamento dee 
+WHERE (pp.idsexo=ss.id and pp.idciudad=cii.id and cii.iddepartamento=dee.id
+	 and (ss.nombre like 'F%')	
+	 and (substring(age(now(),pp.fechanacimiento)::text from 1 for 2)::int >49 and substring(age(now(),pp.fechanacimiento)::text from 1 for 2)::int <100 ) 
+	 and dee.id=de.id 
+	  )
+)
+FROM pedido.persona p,academico.sexo s,academico.ciudad ci,academico.departamento de 
+WHERE (p.idsexo=s.id and p.idciudad=ci.id and ci.iddepartamento=de.id
+	 and (s.nombre like 'F%')	
+	 )
+GROUP BY de.id
+ORDER BY COUNT(*) DESC
+
+
+
+---------------------5.-------------------------------------------------------------------------------------------------
+
+----reporte---------------------------------
+---nombre del 0 al 6 el dia 1 es martes y el viernes 4--------------
+SELECT p.nombre ,ci.nombre,de.nombre,p.fechanacimiento,
+(SELECT EXTRACT(DOW FROM p.fechanacimiento)) as "dia"
+FROM pedido.persona p,academico.tipodocumento c,academico.sexo s,academico.ciudad ci,academico.pais pa,academico.departamento de 
+WHERE p.idsexo=s.id and p.idtipodocumento=c.id and p.idciudad=ci.id and ci.iddepartamento=de.id and de.idpais=pa.id
+	and (de.id=11 or de.id=12 or de.id=13 or de.id=15 or de.id=20 or de.id=47 or de.id=50 or de.id=19 or de.id=66 
+	or de.nombre = 'Norte de Santander' or de.nombre = 'Choco' or (de.nombre like 'Nari%')  )
+	and ( ((SELECT EXTRACT(DOW FROM p.fechanacimiento))=1 
+		 and (SELECT EXTRACT(DAY FROM p.fechanacimiento)=13)
+		 )
+		 or ((SELECT EXTRACT(DOW FROM p.fechanacimiento))=4 
+		 and (SELECT EXTRACT(DAY FROM p.fechanacimiento)=13)))
+
+----usando la clausula exists da uno si consigue algun resultado como en la tabla anterior vimos hay varios resultados----------	   		
+---como el tiene mas de uno devuelve 1------------------------------------------------------------------------------------------
+SELECT 
+WHERE EXISTS 
+(SELECT p.nombre 
+FROM pedido.persona p,academico.tipodocumento c,academico.sexo s,academico.ciudad ci,academico.pais pa,academico.departamento de 
+WHERE p.idsexo=s.id and p.idtipodocumento=c.id and p.idciudad=ci.id and ci.iddepartamento=de.id and de.idpais=pa.id
+	and (de.id=11 or de.id=12 or de.id=13 or de.id=15 or de.id=20 or de.id=47 or de.id=50 or de.id=19 or de.id=66 
+	or de.nombre = 'Norte de Santander' or de.nombre = 'Choco' or (de.nombre like 'Nari%')  )
+	and ( ((SELECT EXTRACT(DOW FROM p.fechanacimiento))=1 
+		 and (SELECT EXTRACT(DAY FROM p.fechanacimiento)=13)
+		 )
+		 or ((SELECT EXTRACT(DOW FROM p.fechanacimiento))=4
+		 and (SELECT EXTRACT(DAY FROM p.fechanacimiento)=13))));
+		 
+		 
+------------------------------------------------------------------------------------------------------
+---------------------6.--------------------------------------------------------------------------------
+
+SELECT p.nombre,p.apellido,p.documento,c.nombre,s.nombre,p.fechanacimiento,p.fecharegistro,ci.nombre,de.nombre,p.idtipodocumento
+FROM pedido.persona p,academico.tipodocumento c,academico.sexo s,academico.ciudad ci,academico.pais pa,academico.departamento de 
+WHERE p.idsexo=s.id and p.idtipodocumento=c.id and p.idciudad=ci.id and ci.iddepartamento=de.id and de.idpais=pa.id and c.nombre ='CC'
+
+SELECT COUNT(*)
+FROM pedido.persona p,academico.tipodocumento c,academico.sexo s,academico.ciudad ci,academico.pais pa,academico.departamento de 
+WHERE ( p.idsexo=s.id and p.idtipodocumento=c.id and p.idciudad=ci.id 
+	   and ci.iddepartamento=de.id and de.idpais=pa.id 
+	   and substring(age(now(),p.fechanacimiento)::text from 1 for 2)::int <18 )
+
+
+-----------------------consulta numero 6 del taller-------------------------------------------------------
+
+SELECT pedido.persona.nombre,academico.tipodocumento.nombre
+FROM pedido.persona 
+INNER JOIN academico.tipodocumento 
+ON  pedido.persona.idtipodocumento = academico.tipodocumento.id
+and	(
+substring(age(now(),pedido.persona.fechanacimiento)::text from 1 for 2)::int <18
+)
+and pedido.persona.idtipodocumento =1
+
+
+-----------------------------------------------------------------------------------------------------

@@ -1,0 +1,92 @@
+---------------ALEJANDRO ESPINEL 2180027
+
+-----este codigo es para hacer serial el valor de id escritor
+CREATE SEQUENCE test_id_seq MINVALUE 1
+ALTER TABLE pedido.escritor ALTER id SET DEFAULT nextval('test_id_seq')
+-----------------------------1.insertando escritor anonimo---------------------------------------------------
+insert into pedido.escritor(nombre,apellido,idpersona,seudonimo,idgeneroliterario,fecharegistro,email,perfil)
+values('Anonimo','Anonimo',1,'Anonimo',1,now(),'Anonimo@gmail.com','Anonimo');
+----------------------------2.inserte escritor y no lo referencia ninguna persona----------------------------
+insert into pedido.escritor(nombre,apellido,seudonimo,idgeneroliterario,fecharegistro,email,perfil)
+values('Pepito','Perez','Pepito',1,now(),'pepito@pepe.com','Pepito');
+
+
+---------------------------3.inserte escritor y no lo referencia ninguna persona---------------------
+insert into pedido.escritor(nombre,apellido,seudonimo,idgeneroliterario,fecharegistro,email,perfil)
+values('Roberto','Perez','Roberto',1,now(),'Roberto@robert.com','Roberto');
+
+insert into pedido.escritor(nombre,apellido,seudonimo,idgeneroliterario,fecharegistro,email,perfil)
+values('Claudia','Perez','Claudia',1,now(),'Claudia@clau.com','Claudia');
+
+
+---------------------------4.inserte escritor y no lo referencia ninguna persona---------------------
+SELECT COUNT(*)
+FROM pedido.persona p,academico.tipodocumento c,academico.sexo s,academico.ciudad ci,academico.pais pa,academico.departamento de 
+WHERE (p.idsexo=s.id and p.idtipodocumento=c.id and p.idciudad=ci.id and ci.iddepartamento=de.id and de.idpais=pa.id
+	  )
+GROUP BY de.id
+ORDER BY COUNT(*) DESC
+--------------de la consulta anterir veo los departamentos que tienen menos de 5 personas o 5 que es Arauca y San Andres
+INSERT into pedido.escritor(nombre,apellido,seudonimo,idgeneroliterario,fecharegistro,email)
+SELECT p.nombre,p.apellido,p.nombre,p.id,p.fecharegistro,p.email
+FROM pedido.persona p,academico.tipodocumento c,academico.sexo s,academico.ciudad ci,academico.pais pa,academico.departamento de 
+WHERE p.idsexo=s.id and p.idtipodocumento=c.id and p.idciudad=ci.id 
+and ci.iddepartamento=de.id and de.idpais=pa.id  and ((de.nombre = 'Arauca') or (de.nombre = 'San Andres'))
+----------------------5.INSERTE LOS ESCRITORES DEL VALLE DEL CAUCA--------------------------------------------------------------------------
+INSERT into pedido.escritor(nombre,apellido,seudonimo,idgeneroliterario,fecharegistro,email)
+SELECT p.nombre,p.apellido,p.nombre,p.id,p.fecharegistro,p.email
+FROM pedido.persona p,academico.tipodocumento c,academico.sexo s,academico.ciudad ci,academico.pais pa,academico.departamento de 
+WHERE p.idsexo=s.id and p.idtipodocumento=c.id and p.idciudad=ci.id 
+and ci.iddepartamento=de.id and de.idpais=pa.id  and (de.nombre LIKE 'Valle%')
+
+--------------6.Inserte temas literarios seguntabla adjunta en tema-----------------------------
+create table academico.tema_prueba
+(
+	id serial NOT NULL,
+	nombre character varying(60),
+	CONSTRAINT pk_escritor PRIMARY KEY (id)
+)
+alter table academico.tema_prueba ADD tema character varying(60)
+COPY academico.tema_prueba(nombre,tema) FROM 'D:\LENOVO\Desktop\tema.txt' DELIMITER ';' CSV HEADER
+INSERT into libreria.tema(nombre)
+select p.nombre from academico.tema_prueba p
+DROP TABLE academico.tema_prueba; 
+
+select * from libreria.tema
+
+-----------------7.inserte los libros y asignale un escritor aleatorio a libro---------------------------
+create table academico.libro_prueba
+(
+	id serial NOT NULL,
+	titulo character varying(60),
+	autor character varying(60),
+	fecha character varying(60),
+	localidad character varying(60),
+	idioma character varying(60),
+	CONSTRAINT pk_libro_prueba PRIMARY KEY (id)
+)
+
+COPY academico.libro_prueba(titulo,autor,fecha,localidad,idioma) FROM 'D:\LENOVO\Desktop\libros.txt' DELIMITER ';' CSV HEADER
+
+INSERT into libreria.libro(titulo,idautor,ideditorial,idtema)
+select p.titulo,
+(trunc(random() * 71 + 1)),
+(trunc(random() * 100 + 1)),
+(trunc(random() * 33 + 1))
+from academico.libro_prueba p
+DROP TABLE academico.libro_prueba; 
+select * from libreria.libro
+
+----------------------8.actualice de forma aleatoria los idpersona en escritor y 9.asigne los idpersona que corresponda a cada escritor------------------
+update pedido.escritor 
+set idpersona=(trunc(random() *1684  + 1))
+where (trunc(random() *1684  + 1))>1000
+
+---actualiza de forma aleatoria y luego los asigno
+
+
+------------------10.borre los registros que no tengan registros asignados menos anonimo---------------------------------------------
+delete from pedido.escritor p
+where (p.idpersona is null) and (p.nombre !='Anonimo')
+------en este caso si da error es por que sin querer lo refeencie a la tabla libro entonces me da error por eso ya que no lo puedo borrar
+

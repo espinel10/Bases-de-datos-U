@@ -1,0 +1,93 @@
+----------Alejandro Jose Espinel Perez 2180027
+-------------------------1.------------------------------------------
+INSERT INTO HOTELBD.MARCA VALUES (51,'DUFF');
+--------------id,nombre,money,idmarca,idtipobebida-------------------
+INSERT INTO HOTELBD.TIPOMARCA VALUES (51,'350 ml',30.00,51,777);
+------------------2.--------------------------------------------------------
+INSERT INTO HOTELBD.MINIBAR VALUES (2,'BarMoe','123456789');
+-----------bebidas=id ,idmarca,idminibar
+-----------tipomarca=nombre,precio,idmarca,idtipobebida
+INSERT INTO HOTELBD.BEBIDAS VALUES (51,4,2);
+INSERT INTO HOTELBD.BEBIDAS VALUES (52,43,2);
+
+--------------3.-------------------------------------------------------------
+----------hotelbar(id,idhotel,idminibar)---------------------
+INSERT into HOTELBD.HOTELBAR(id,idhotel,idminibar)
+SELECT q.id,p.id,q.id
+FROM HOTELBD.HOTEL p,HOTELBD.MINIBAR q
+----------4.-------------------------------------------------------
+-------------actualice el precio de las bebidas incrementandolas en un 2% pero que no sean bebidas alcolicas osea cerveza y licor que son 777 888 
+-----------tipomarca id,nombre,Precio,IdMarca,IdTipoBebidas
+update HOTELBD.TIPOMARCA
+set precio=(precio+precio*0.02)
+where (tipomarca.idtipobebidas!=777 and tipomarca.idtipobebidas!=888)
+
+
+---------5.----------------------------------------------------------
+
+SELECT p.nombre,p.apellido, FROM HOTELBD.EMPLEADO p, HOTELBD.HOTEL q, HOTELBD.TIPOEMPLEADO s
+WHERE (p.IdHotel=q.id and p.IdTipoEmpleado=s.id
+and ((p.edad)::int<35 and (p.edad)::int >26)
+and (s.Cargo like '%r%')	   
+)
+
+-----6.-----------------------------------------------------------------
+
+SELECT p.CARGO as tipo_empleado,SUM(p.salario) as nomina_total
+FROM HOTELBD.EMPLEADO q,HOTELBD.TIPOEMPLEADO p 
+WHERE  q.idtipoempleado=p.id
+GROUP BY p.cargo
+
+--------7.--------------------------------------------------------------
+
+CREATE VIEW ServiciosPorBar
+ AS SELECT p.nombre,q.id as codigo, q.nombre as bebida, q.precio
+ FROM hotelbd.bebidas r, hotelbd.minibar p, hotelbd.tipomarca q, hotelbd.marca s
+ WHERE (r.idmarca=s.id and r.idminibar= p.id  and q.idmarca=r.idmarca and precio >'$35.5') 
+ ORDER BY p.nombre ASC,codigo DESC
+
+--------------8.--------------------------------------------
+SELECT DISTINCT (r.numerohabitacion)
+FROM HOTELBD.estancia p , HOTELBD.cliente q,HOTELBD.habitacion r,HOTELBD.clientehabitacion s
+where( q.id = p.idcliente
+and q.id = r.id
+and p.fechaentrada > '2016-08-01'
+and p.fechasalida < '2016-12-25'
+)
+------------------9.--------------------------------------
+SELECT sum( EXTRACT(DAY from p.fechasalida) - EXTRACT(DAY FROM p.fechaentrada))
+FROM HOTELBD.ESTANCIA p ,HOTELBD.CLIENTE q,HOTELBD.EMPLEADO r,HOTELBD.HOTEL s,HOTELBD.HABITACION t,HOTELBD.TIPOHABITACION v
+WHERE p.idCliente=q.id and q.idEmpleado=r.id and r.idHotel=s.id and t.idHotel=s.id and v.id=t.IdTipoHabitacion
+GROUP BY v.id
+
+--------------10.-----------------------------------------
+-- para tener un orden 
+
+CREATE SEQUENCE test_id_seq2 MINVALUE 51;
+ALTER TABLE hotelbd.cliente ALTER id SET DEFAULT nextval('test_id_seq2')
+---
+
+INSERT INTO hotelbd.cliente(nombre,apellido,tarjetaidentidad)
+SELECT p.nombre,p.apellido,t.nombre  from pedido.persona p, academico.ciudad c, academico.departamento d, academico.tipodocumento t
+WHERE   p.idciudad=c.id and c.iddepartamento=d.id 
+and t.id= p.idtipodocumento and substring (age(now(),p.fechanacimiento)::text from 1 for 2)::int between 25 and 50
+and d.id= 21
+---
+
+CREATE SEQUENCE test_id_seq12 MINVALUE 151;
+ALTER TABLE hotelbd.estancia ALTER id SET DEFAULT nextval('test_id_seq12')
+---
+
+INSERT INTO hotelbd.estancia(fechaentrada,fechasalida,idcliente)
+SELECT to_date('19/03/2015','DD/MM/YYYY'),to_date('24/03/2015','DD/MM/YYYY'), c.id 
+FROM hotelbd.cliente c
+WHERE c.id >=51
+----
+
+CREATE SEQUENCE test_id_seq1234 MINVALUE 151;
+ALTER TABLE hotelbd.clientehabitacion ALTER id SET DEFAULT nextval('test_id_seq1234')
+----
+INSERT INTO hotelbd.clientehabitacion(idcliente)
+SELECT c.id
+FROM  hotelbd.cliente c
+WHERE c.id >=51

@@ -1,0 +1,278 @@
+
+
+
+CREATE SCHEMA ProyectoDB;
+CREATE TABLE ProyectoDB.Mantenimiento(
+	idmantenimiento int NOT NULL,
+	idtipomantenimiento int NOT NULL,
+	idmaquina int NOT NULL,
+	fecha date ,
+	descripcion text ,
+	CONSTRAINT PK_MANTENIMIENTO PRIMARY KEY (idmantenimiento)
+	);
+
+CREATE TABLE ProyectoDB.Maquina(
+	idmaquina int NOT NULL,
+	idproveedor int NOT NULL,
+	nombre text ,
+	CONSTRAINT PK_MAQUINA PRIMARY KEY (idmaquina)
+	);
+	
+CREATE TABLE ProyectoDB.Tipo_Mantenimiento(
+	idtipomantenimiento int NOT NULL,
+	preventivo int NOT NULL,
+	correctivo int NOT NULL,
+	CONSTRAINT PK_TIPO_MANTENIMIENTO PRIMARY KEY (idtipomantenimiento)
+	);	
+	
+ALTER TABLE ProyectoDB.Mantenimiento
+ADD CONSTRAINT FK_MANTENIMIENTO FOREIGN KEY(idtipomantenimiento)
+REFERENCES ProyectoDB.Tipo_Mantenimiento (idtipomantenimiento)
+on delete restrict on update restrict;
+
+
+
+CREATE TABLE ProyectoDB.Proveedor(
+	idproveedor int NOT NULL,
+	nombre text NOT NULL,
+	direccion text NOT NULL,
+	telefono int NOT NULL,
+	correo text NOT NULL,
+	CONSTRAINT PK_PROVEEDOR PRIMARY KEY (idproveedor)
+	);	
+	
+ALTER TABLE ProyectoDB.Maquina
+ADD CONSTRAINT FK_MAQUINA_P FOREIGN KEY(idproveedor)
+REFERENCES ProyectoDB.Proveedor(idproveedor)
+on delete restrict on update restrict;
+----------------------------------------------------	
+CREATE TABLE ProyectoDB.sucursal_maquina(
+	idsucursalmaquina int NOT NULL,
+	idturno int NOT NULL,
+	idmaquina int NOT NULL,
+	idpagotarjetas int NOT NULL,
+	idsucursal int NOT NULL,
+	precio int NOT NULL,
+	CONSTRAINT PK_SUCURSAL_MAQUINA PRIMARY KEY (idsucursalmaquina)
+	);	
+	
+CREATE TABLE ProyectoDB.turno(
+	idturno int NOT NULL,
+	idempleado int NOT NULL,
+	h_inicio int NOT NULL,
+	h_final int NOT NULL,
+	CONSTRAINT PK_TURNO PRIMARY KEY (idturno)
+	);	
+
+----------segunda parte----------------------------------------------------
+CREATE TABLE ProyectoDB.sucursal_atraccion(
+	idsucursalatraccion int NOT NULL,
+	idturno int NOT NULL,
+	idpagotarjetas int NOT NULL,
+	idsucursal int NOT NULL,
+	precio int NOT NULL,
+	CONSTRAINT PK_SUCURSAL_ATRACCION PRIMARY KEY (idsucursalatraccion)
+	);		
+----------------------------------------------------
+
+CREATE TABLE ProyectoDB.sucursal(
+	idsucursal int NOT NULL,
+	nombre text NOT NULL,
+	descripcion text NOT NULL,
+	CONSTRAINT PK_SUCURSAL PRIMARY KEY (idsucursal)
+	);
+
+
+CREATE TABLE ProyectoDB.atraccion(
+	idatraccion int NOT NULL,
+	idsucursalatraccion int NOT NULL,
+	nombre text NOT NULL,
+	descripcion text NOT NULL,
+	CONSTRAINT PK_ATRACCION PRIMARY KEY (idatraccion)
+	);
+
+
+CREATE TABLE ProyectoDB.pago_tarjeta(
+	idpagotarjeta int NOT NULL,
+	idtarjeta int NOT NULL,
+	fecha date NOT NULL,
+	descripcion text NOT NULL,
+	CONSTRAINT PK_PAGO_TARJETA PRIMARY KEY (idpagotarjeta)
+	);
+
+
+
+
+CREATE TABLE ProyectoDB.restaurante(
+	idrestaurante int NOT NULL,
+	idsucursal int NOT NULL,
+	idempleado int NOT NULL,
+	descripcion text NOT NULL,
+	CONSTRAINT PK_RESTAURANTE PRIMARY KEY (idrestaurante)
+	);
+
+CREATE TABLE ProyectoDB.tarjeta(
+	idtarjeta int NOT NULL,
+	saldo int NOT NULL,
+	CONSTRAINT PK_TARJETA PRIMARY KEY (idtarjeta)
+	);
+
+
+CREATE TABLE ProyectoDB.cliente(
+	idcliente int NOT NULL,
+	idtarjeta int NOT NULL,
+	nombre text NOT NULL,
+	correo text NOT NULL,
+	telefono int NOT NULL,
+	apelido text NOT NULL,
+	CONSTRAINT PK_CLIENTE PRIMARY KEY (idcliente)
+	);
+
+
+CREATE TABLE ProyectoDB.recarga(
+	idrecarga int NOT NULL,
+	idcliente int NOT NULL,
+	idtarjeta int NOT NULL,
+	idfactura int NOT NULL,
+	valor int NOT NULL,
+	fecha date NOT NULL,
+	CONSTRAINT PK_RECARGA PRIMARY KEY (idrecarga)
+	);
+
+
+CREATE TABLE ProyectoDB.detalle(
+	iddetalle int NOT NULL,
+	info text NOT NULL,
+	CONSTRAINT PK_DETALLE PRIMARY KEY (iddetalle)
+	);
+
+
+CREATE TABLE ProyectoDB.factura(
+	idfactura int NOT NULL,
+	idempleado int NOT NULL,
+	iddetalle int NOT NULL,
+	fecha date NOT NULL,
+	CONSTRAINT PK_FACTURA PRIMARY KEY (idfactura)
+	);
+
+CREATE TABLE ProyectoDB.empleado(
+	idempleado int NOT NULL,
+	fechaingreso date NOT NULL,
+	nombre text NOT NULL,
+	apellido text NOT NULL,
+	CONSTRAINT PK_ PRIMARY KEY (idempleado)
+	);
+
+-----------------------alteres------------------------------------------------------------------------------
+
+-----sucursal_maquina
+ALTER TABLE ProyectoDB.sucursal_maquina
+ADD CONSTRAINT FK_SUCURSAL_MAQUINA_MAQUINA FOREIGN KEY(idmaquina)
+REFERENCES ProyectoDB.maquina (idmaquina)
+on delete restrict on update restrict;
+
+ALTER TABLE ProyectoDB.sucursal_maquina
+ADD CONSTRAINT FK_SUCURSAL_MAQUINA_TURNO FOREIGN KEY(idturno)
+REFERENCES ProyectoDB.turno (idturno)
+on delete restrict on update restrict;
+
+ALTER TABLE ProyectoDB.sucursal_maquina
+ADD CONSTRAINT FK_SUCURSAL_PAGO_TARJETA FOREIGN KEY(idpagotarjetas)
+REFERENCES ProyectoDB.pago_tarjeta (idpagotarjeta)
+on delete restrict on update restrict;
+
+ALTER TABLE ProyectoDB.sucursal_maquina
+ADD CONSTRAINT FK_SUCURSAL_MAQUINA_SUCURSAL FOREIGN KEY(idsucursal)
+REFERENCES ProyectoDB.sucursal (idsucursal)
+on delete restrict on update restrict;
+
+-----turno
+
+ALTER TABLE ProyectoDB.turno
+ADD CONSTRAINT FK_TURNO FOREIGN KEY(idempleado)
+REFERENCES ProyectoDB.empleado (idempleado)
+on delete restrict on update restrict;
+
+----sucursal_atraccion
+
+ALTER TABLE ProyectoDB.sucursal_atraccion
+ADD CONSTRAINT FK_SUCURSAL_ATRACCION_TURNO FOREIGN KEY(idturno)
+REFERENCES ProyectoDB.turno (idturno)
+on delete restrict on update restrict;
+
+ALTER TABLE ProyectoDB.sucursal_atraccion
+ADD CONSTRAINT FK_SUCURSAL_ATRACCION_PAGO FOREIGN KEY(idpagotarjetas)
+REFERENCES ProyectoDB.pago_tarjeta (idpagotarjeta)
+on delete restrict on update restrict;
+
+ALTER TABLE ProyectoDB.sucursal_atraccion
+ADD CONSTRAINT FK_SUCURSAL_ATRACCION_SUCURSAL FOREIGN KEY(idsucursal)
+REFERENCES ProyectoDB.sucursal (idsucursal)
+on delete restrict on update restrict;
+
+
+------------------------atraccion
+ALTER TABLE ProyectoDB.atraccion
+ADD CONSTRAINT FK_ATRACCION FOREIGN KEY(idsucursalatraccion)
+REFERENCES ProyectoDB.sucursal_atraccion (idsucursalatraccion)
+on delete restrict on update restrict;
+
+---------------------------pago_tarjeta
+
+ALTER TABLE ProyectoDB.pago_tarjeta
+ADD CONSTRAINT FK_PAGO_TARJETA FOREIGN KEY(idtarjeta)
+REFERENCES ProyectoDB.tarjeta (idtarjeta)
+on delete restrict on update restrict;
+
+
+
+------------------------restaurante
+
+ALTER TABLE ProyectoDB.restaurante
+ADD CONSTRAINT FK_RESTAURANTE_SUCURSAL FOREIGN KEY(idsucursal)
+REFERENCES ProyectoDB.sucursal (idsucursal)
+on delete restrict on update restrict;
+
+ALTER TABLE ProyectoDB.restaurante
+ADD CONSTRAINT FK_RESTAURANTE_EMPLEADO FOREIGN KEY(idempleado)
+REFERENCES ProyectoDB.empleado (idempleado)
+on delete restrict on update restrict;
+
+----------------cliente
+
+ALTER TABLE ProyectoDB.cliente
+ADD CONSTRAINT FK_CLIENTE FOREIGN KEY(idtarjeta)
+REFERENCES ProyectoDB.tarjeta (idtarjeta)
+on delete restrict on update restrict;
+
+
+------------recarga
+
+ALTER TABLE ProyectoDB.recarga
+ADD CONSTRAINT FK_RECARGA_CLIENTE FOREIGN KEY(idcliente)
+REFERENCES ProyectoDB.cliente (idcliente)
+on delete restrict on update restrict;
+
+ALTER TABLE ProyectoDB.recarga
+ADD CONSTRAINT FK_RECARGA_TARJETA FOREIGN KEY(idtarjeta)
+REFERENCES ProyectoDB.tarjeta (idtarjeta)
+on delete restrict on update restrict;
+
+ALTER TABLE ProyectoDB.factura
+ADD CONSTRAINT FK_RECARGA_FACTURA FOREIGN KEY(idfactura)
+REFERENCES ProyectoDB.factura (idfactura)
+on delete restrict on update restrict;
+
+
+
+-----------------------factura
+
+ALTER TABLE ProyectoDB.factura
+ADD CONSTRAINT FK_FACTURA_EMPLEADO FOREIGN KEY(idempleado)
+REFERENCES ProyectoDB.empleado (idempleado)
+on delete restrict on update restrict;
+
+ALTER TABLE ProyectoDB.factura
+ADD CONSTRAINT FK_FACTURA_DETALLE FOREIGN KEY(iddetalle)
+REFERENCES ProyectoDB.detalle (iddetalle)
+on delete restrict on update restrict;
